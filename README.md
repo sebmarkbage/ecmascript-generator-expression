@@ -87,7 +87,7 @@ let allUsers = Array.from(do* {
 });
 ```
 
-## Implicit `do *` Expression Loop Expressions
+## Implicit `do *` Loop Expressions
 
 A potential future enhancement to the array literal syntax could be used to have `for`/`while` expressions be implicit `do *` expressions while inside an array literal.
 
@@ -100,6 +100,19 @@ let arrayOfUsers = [
 ```
 
 `do { } while()` expressions doesn't work as naturally in this position since that syntax is occupied by `do` expressions.
+
+## Drop the `do` - It's cleaner
+
+It might be possible to drop the `do` keyword and simply use `* {...}` instead. This provides a short hand form that still allows for new bindings to be declared outside the loop.
+
+```js
+let mapOfUsers = new Map(*{
+  let i = 0;
+  for (let user of users)
+    if (user.name.startsWith('A') && (i++ % 2) === 0)
+      yield [user.id, user];
+});
+```
 
 ## `return` and `break` Statements
 
