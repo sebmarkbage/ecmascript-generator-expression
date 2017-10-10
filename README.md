@@ -130,6 +130,16 @@ let mapOfUsers = new Map(*{
 
 This form could be different than `do *` in that completion values are not implicitly returned from the generator. Perhaps this should be the main proposal and `do * {}` is just a variant of `* {}`?
 
+It looks pretty nice with spread:
+
+```js
+let arrayOfUsers = [...*{
+  for (let user of users)
+    if (user.name.startsWith('A'))
+      yield user;
+}];
+```
+
 ## Implicit `*` Loop Expressions
 
 A potential future enhancement to the array literal syntax could be used to have `for`/`while` expressions be implicit generator expressions while inside an array literal.
