@@ -87,19 +87,33 @@ let allUsers = Array.from(do* {
 });
 ```
 
-## Implicit `do *` Loop Expressions
+### Completion Values
 
-A potential future enhancement to the array literal syntax could be used to have `for`/`while` expressions be implicit `do *` expressions while inside an array literal.
+Just like normal do-expressions, the completion value is like a return value. That means that the completion value is the final value in the generator.
+
+This means that this yields a generator whose final value is `z`.
 
 ```js
-let arrayOfUsers = [
-  for (let user of users)
-    if (user.name.startsWith('A'))
-      yield user;
-];
+let xyz = do* {
+  for (let x in a)
+    yield x;
+  for (let y in b)
+    yield y;
+  z;
+};
 ```
 
-`do { } while()` expressions doesn't work as naturally in this position since that syntax is occupied by `do` expressions.
+It desugars to:
+
+```js
+let xyz = (function* {
+  for (let x in a)
+    yield x;
+  for (let y in b)
+    yield y;
+  return z;
+})();
+```
 
 ## Drop the `do` - It's cleaner
 
@@ -114,9 +128,25 @@ let mapOfUsers = new Map(*{
 });
 ```
 
+This form could be different than `do *` in that completion values are not implicitly returned from the generator. Perhaps this should be the main proposal and `do * {}` is just a variant of `* {}`?
+
+## Implicit `*` Loop Expressions
+
+A potential future enhancement to the array literal syntax could be used to have `for`/`while` expressions be implicit generator expressions while inside an array literal.
+
+```js
+let arrayOfUsers = [
+  for (let user of users)
+    if (user.name.startsWith('A'))
+      yield user;
+];
+```
+
+`do { } while()` expressions doesn't work as naturally in this position since that syntax is occupied by `do` expressions.
+
 ## `return` and `break` Statements
 
-It's unclear what the `return` statement should do inside these generators. It could either return out of the outer function or abruptly stop the iteration of the generator. 
+It's unclear what the `return` statement should do inside these generators. It could either return out of the outer function or abruptly stop the iteration of the generator. Unfortunately this leaves no possibility for an early return from a do-generator.
 
 `break` without a label is easier. It should probably break out of the generator expression. However, with a label the control flow doesn't make as much sense since in a free standing generator, that scope doesn't exist anymore.
 
