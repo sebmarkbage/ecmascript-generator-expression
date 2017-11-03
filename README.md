@@ -1,5 +1,5 @@
-`do` Generators for ECMAScript
-------------------------------
+Generator Expressions for ECMAScript
+------------------------------------
 
 A convenient way of generating arrays/sets/maps of values in a contained expression. An alternative to [array comprehensions](http://tc39wiki.calculist.org/es6/array-comprehensions/).
 
@@ -11,12 +11,12 @@ However, we've observed that when combinator chains become complex, rather than 
 
 The idea around this proposal is to allow a more natural transition by making a convenient shorthand imperative style that can be expanded to more complex cases.
 
-## `do` Generators
+## Generator Expressions
 
-The primitive is a new kind of do expression that allows `yield`ing. It evaluates to a generator.
+The primitive is a new kind of expression that allows `yield`ing. It evaluates to a generator.
 
 ```js
-let gen = do* {
+let gen = *{
   yield 1;
   yield 2;
 };
@@ -34,7 +34,7 @@ let gen = (function*() {
 This can be combined with various initializers to create an Array, Maps or Set.
 
 ```js
-let arrayOfUsers = [...do* {
+let arrayOfUsers = [...*{
   for (let user of users)
     if (user.name.startsWith('A'))
       yield user;
@@ -42,7 +42,7 @@ let arrayOfUsers = [...do* {
 ```
 
 ```js
-let arrayOfUsers = Array.from(do* {
+let arrayOfUsers = Array.from(*{
   for (let user of users)
     if (user.name.startsWith('A'))
       yield user;
@@ -50,7 +50,7 @@ let arrayOfUsers = Array.from(do* {
 ```
 
 ```js
-let setOfUsers = new Set(do* {
+let setOfUsers = new Set(*{
   for (let user of users)
     if (user.name.startsWith('A'))
       yield user;
@@ -58,17 +58,18 @@ let setOfUsers = new Set(do* {
 ```
 
 ```js
-let mapOfUsers = new Map(do* {
+let mapOfUsers = new Map(*{
+  let i = 0;
   for (let user of users)
-    if (user.name.startsWith('A'))
+    if (user.name.startsWith('A') && (i++ % 2) === 0)
       yield [user.id, user];
 });
 ```
 
-Since these do expressions naturally expand to more complex examples, you can keep expanding these with more complex logic as requirements expand. While still remaining in an isolated expression.
+Since these generator expressions naturally expand to more complex examples, you can keep expanding these with more complex logic as requirements expand. While still remaining in an isolated expression.
 
 ```js
-let allUsers = Array.from(do* {
+let allUsers = new Set(*{
   let i = 0;
   for (let user of activeUsers) {
     i++;
@@ -87,14 +88,38 @@ let allUsers = Array.from(do* {
 });
 ```
 
+If the code complexity keeps expanding to requiring a temporary array, the next refactor step is to switch to a `do` expression.
+
+```js
+let allUsers = new Set(do {
+  let tmp = [];
+  let i = 0;
+  for (let user of activeUsers) {
+    i++;
+    let isEven = (i % 2 === 0);
+    let id = user.id;
+    let name = user.name;
+    if (id && name !== 'DELETED') {
+      tmp.push({ id, name, isEven });
+    }
+  }
+  for (let user of inactiveUsers) {
+    i++;
+    let isEven = (i % 2 === 0);
+    tmp.push({ id: null, name: user.name, isEven });
+  }
+  tmp.reverse();
+});
+```
+
 ### Completion Values
 
-Just like normal do-expressions, the completion value is like a return value. That means that the completion value is the final value in the generator.
+Just like do-expressions, the completion value is like a return value. That means that the completion value is the final value in the generator. This is an advanced and uncommon feature. In most common uses of this feature, the completion value is ignored. E.g. when used to construct Arrays or Sets.
 
 This means that this yields a generator whose final value is `z`.
 
 ```js
-let xyz = do* {
+let xyz = *{
   for (let x in a)
     yield x;
   for (let y in b)
@@ -115,30 +140,51 @@ let xyz = (function* {
 })();
 ```
 
-## Drop the `do` - It's cleaner
-
-It might be possible to drop the `do` keyword and simply use `* {...}` instead. This provides a short hand form that still allows for new bindings to be declared outside the loop.
+This can be useful for scheduling code like Task.js.
 
 ```js
-let mapOfUsers = new Map(*{
-  let i = 0;
-  for (let user of users)
-    if (user.name.startsWith('A') && (i++ % 2) === 0)
-      yield [user.id, user];
+let promise = Task(*{
+  const [foo, bar] = yield Task.join(
+    read("foo.json"),
+    read("bar.json")
+  );
+  foo.x + bar.y;
 });
 ```
 
-This form could be different than `do *` in that completion values are not implicitly returned from the generator. Perhaps this should be the main proposal and `do * {}` is just a variant of `* {}`?
+## `break` Statements
 
-It looks pretty nice with spread:
+`break` without a label will break out of the generator. It behaves like returning the completion value of a generator function. Early returns can be accomplished using `break`.
 
 ```js
-let arrayOfUsers = [...*{
-  for (let user of users)
-    if (user.name.startsWith('A'))
-      yield user;
-}];
+let promise = Task(*{
+  const [foo, bar] = yield Task.join(
+    read("foo.json"),
+    read("bar.json")
+  );
+  if (!bar) {
+    foo.x;
+    break;
+  }
+  foo.x + bar.y;
+});
 ```
+
+You can break to labels inside of the generator expression just like normal. However, with a label defined outside the generator expression, the control flow doesn't make as much sense since in a free standing generator, that scope doesn't exist anymore. That's a syntax error.
+
+```js
+foo: {
+  let items = [...*{
+    break foo; // SyntaxError!
+  }];
+}
+```
+
+## `return` Statements
+
+It's unclear what the `return` statement should do inside these generators. It could either return out of the outer function or abruptly stop the iteration of the generator. I'm leaning to just forbidding `return` for now.
+
+`throw` works just fine though.
 
 ## Implicit `*` Loop Expressions
 
@@ -153,14 +199,6 @@ let arrayOfUsers = [
 ```
 
 `do { } while()` expressions doesn't work as naturally in this position since that syntax is occupied by `do` expressions.
-
-## `return` and `break` Statements
-
-It's unclear what the `return` statement should do inside these generators. It could either return out of the outer function or abruptly stop the iteration of the generator. Unfortunately this leaves no possibility for an early return from a do-generator.
-
-`break` without a label is easier. It should probably break out of the generator expression. However, with a label the control flow doesn't make as much sense since in a free standing generator, that scope doesn't exist anymore.
-
-I'm leaning to just forbidding them for now. `throw` works just fine though.
 
 ## Related Proposals
 
