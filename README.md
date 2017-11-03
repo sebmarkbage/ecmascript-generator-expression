@@ -31,7 +31,7 @@ let gen = (function*() {
 })();
 ```
 
-This can be combined with various initializers to create an Array, Maps or Set.
+This can be combined with various initializers to create an Arrays, Maps or Sets.
 
 ```js
 let arrayOfUsers = [...*{
@@ -65,6 +65,8 @@ let mapOfUsers = new Map(*{
       yield [user.id, user];
 });
 ```
+
+## Code Evolution
 
 Since these generator expressions naturally expand to more complex examples, you can keep expanding these with more complex logic as requirements expand. While still remaining in an isolated expression.
 
