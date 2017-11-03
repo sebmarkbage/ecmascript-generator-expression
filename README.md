@@ -186,20 +186,6 @@ It's unclear what the `return` statement should do inside these generators. It c
 
 `throw` works just fine though.
 
-## Implicit `*` Loop Expressions
-
-A potential future enhancement to the array literal syntax could be used to have `for`/`while` expressions be implicit generator expressions while inside an array literal.
-
-```js
-let arrayOfUsers = [
-  for (let user of users)
-    if (user.name.startsWith('A'))
-      yield user;
-];
-```
-
-`do { } while()` expressions doesn't work as naturally in this position since that syntax is occupied by `do` expressions.
-
 ## Related Proposals
 
 [`do` expressions](https://github.com/tc39/proposal-do-expressions)
