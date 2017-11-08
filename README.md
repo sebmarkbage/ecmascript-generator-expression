@@ -194,6 +194,12 @@ It's unclear what the `return` statement should do inside these generators. It c
 
 [Array comprehensions](http://tc39wiki.calculist.org/es6/array-comprehensions/)
 
+## Prior Art
+
+[F# Sequence Expressions][https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/sequences]
+
+[Scala Sequence Comprehensions][https://docs.scala-lang.org/tour/sequence-comprehensions.html]
+
 ## [Status of this Proposal](https://github.com/tc39/ecma262)
 
 This has not yet been presented to TC39. I'm still gathering feedback.
