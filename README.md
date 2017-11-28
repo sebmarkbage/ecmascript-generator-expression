@@ -1,7 +1,7 @@
 Generator Expressions for ECMAScript
 ------------------------------------
 
-A convenient way of generating arrays/sets/maps of values in a contained expression. An alternative to [array comprehensions](http://tc39wiki.calculist.org/es6/array-comprehensions/).
+A convenient way of generating arrays/sets/maps of values in a contained expression. It's an alternative to [array comprehensions](http://tc39wiki.calculist.org/es6/array-comprehensions/) and designed to pair well with [`do` expressions](https://github.com/tc39/proposal-do-expressions). I think of it as the multi-value form of do-expressions.
 
 ## Motivation
 
