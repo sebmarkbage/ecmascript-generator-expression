@@ -184,9 +184,13 @@ foo: {
 
 ## `return` Statements
 
-It's unclear what the `return` statement should do inside these generators. It could either return out of the outer function or abruptly stop the iteration of the generator. I'm leaning to just forbidding `return` for now.
+It's unclear what the `return` statement should do inside these generators. It could either return out of the outer function or abruptly stop the iteration of the generator. I'm leaning to just forbidding `return` for now. Early returns are awkward but works, which seems fine because the use case for the completion value is rare anyway.
 
 `throw` works just fine though.
+
+## `do * { ... }` Syntax Alternative
+
+An alternative syntax could use the `do` prefix since it is effectively in the same category as `do` expressions and this might help explain it once you are familiar with `do`-expressions. I tend to prefer the shortest possible syntax when possible though.
 
 ## Related Proposals
 
