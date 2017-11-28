@@ -196,9 +196,9 @@ It's unclear what the `return` statement should do inside these generators. It c
 
 ## Prior Art
 
-[F# Sequence Expressions][https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/sequences]
+[F# Sequence Expressions](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/sequences)
 
-[Scala Sequence Comprehensions][https://docs.scala-lang.org/tour/sequence-comprehensions.html]
+[Scala Sequence Comprehensions](https://docs.scala-lang.org/tour/sequence-comprehensions.html)
 
 ## [Status of this Proposal](https://github.com/tc39/ecma262)
 
